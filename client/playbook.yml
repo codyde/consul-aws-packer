@@ -1,0 +1,98 @@
+- name: Configure Consul
+  hosts: all
+  connection: ssh
+  gather_facts: yes
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  tasks:
+  - name: Get Vars
+    include_vars:
+      file: ansiblevars.yml
+
+  - name: Update repositories cache and install the unzip package
+    apt:
+      name: unzip
+
+  - name: Install packages for envoy
+    apt:
+      pkg:
+      - vim
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+      - software-properties-common
+
+  - name: Add Tetrate GPG Key
+    apt_key:
+      url: https://getenvoy.io/gpg
+      state: present
+
+  - apt_repository:
+      repo: deb [arch=amd64] https://dl.bintray.com/tetrate/getenvoy-deb bionic stable
+      state: present
+
+  - name: Update repositories cache and install the unzip package
+    apt:
+      name: getenvoy-envoy
+      update_cache: yes
+
+  - name: Copy Connect Service File
+    template:
+      dest: /etc/systemd/system/connect.service
+      src: connect.service
+
+  - name: Replace systemd-resolved file
+    template:
+      dest: /etc/systemd/resolved.conf
+      src: resolved.conf
+  
+  - name: Setup Consul Service Mesh Sidecar Service
+    systemd:
+      name: connect
+      enabled: no
+
+  - name: Get Consul Binary
+    get_url:
+      url: "{{ build.consul_url }}{{ build.consul_binary }}"
+      dest: /tmp/{{ build.consul_binary }}
+
+  - name: Unzip Consul Binary
+    unarchive:
+      src: /tmp/{{ build.consul_binary }}
+      dest: /usr/local/bin/
+      remote_src: yes
+
+  - name: Copy Consul Service File
+    template:
+      dest: /etc/systemd/system/consul.service
+      src: consul.service
+
+  - name: Create consul directory
+    file:
+      path: /etc/consul.d/client/
+      state: directory
+
+  - name: Create Consul Configuration File
+    template:
+      src: consul.config.json
+      dest: /etc/consul.d/client/
+ 
+  - name: Copy Consul certificate
+    template:
+      src: ca.pem
+      dest: /etc/consul.d/client/    
+
+  - name: Create Consul Data Directory
+    file:
+      path: /var/consul
+      state: directory 
+
+  - name: Enable Consul Service
+    systemd:
+      name: consul
+      enabled: yes
+
+ 

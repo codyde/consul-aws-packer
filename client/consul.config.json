@@ -1,0 +1,24 @@
+{
+  "data_dir": "/var/consul",
+  "acl": {
+    "enabled": true,
+    "down_policy": "async-cache",
+    "default_policy": "deny",
+    "tokens":{
+      "default":"6bfd4100-9fde-e390-e997-5a219a60f31f"
+    }
+  },
+  "ca_file": "/etc/consul.d/client/ca.pem",
+  "verify_outgoing": true,
+  "datacenter": "dc1",
+  "encrypt": "FG86A0es4m9cVoj+V9q33g==",
+  "server": false,
+  "log_level": "INFO",
+  "ui": true,
+  "retry_join": [
+    "11eaaac8-3f0d-82ad-9d35-0242ac110014.private.consul.aws.hashicorp.cloud."
+  ],
+  "auto_encrypt": {
+    "tls": true
+  }
+}

@@ -1,0 +1,79 @@
+- name: Configure Consul
+  hosts: all
+  connection: ssh
+  gather_facts: yes
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  tasks:
+  - name: Get Vars
+    include_vars:
+      file: ansiblevars.yml
+
+  - name: Install Unzip
+    apt:
+      name: unzip
+      state: present
+  
+  - name: Get Consul Binary
+    get_url:
+      url: "{{ build.consul_url }}{{ build.consul_binary }}"
+      dest: /tmp/{{ build.consul_binary }}
+
+  - name: Unzip Consul Binary
+    unarchive:
+      src: /tmp/{{ build.consul_binary }}
+      dest: /usr/local/bin/
+      remote_src: yes
+
+  - name: Get Nomad Binary
+    get_url:
+      url: "{{ build.nomad_url }}{{ build.nomad_binary }}"
+      dest: /tmp/{{ build.nomad_binary }}
+
+  - name: Unzip Nomad Binary
+    unarchive:
+      src: /tmp/{{ build.nomad_binary }}
+      dest: /usr/local/bin/
+      remote_src: yes
+
+  - name: Copy Consul Service File
+    template:
+      dest: /etc/systemd/system/consul.service
+      src: consul.service
+
+  - name: Copy Nomad Service File
+    template:
+      dest: /etc/systemd/system/nomad.service
+      src: nomad.service
+
+  - name: Enable Consul Service
+    systemd:
+      name: consul
+      enabled: yes
+
+  - name: Enable Nomad Service
+    systemd:
+      name: nomad
+      enabled: yes
+
+  - name: Create Consul Configuration File
+    template:
+      src: consul.config.json
+      dest: /etc/consul.d/server/
+
+  - name: Create Nomad Configuration File
+    template:
+      src: nomad.server.hcl
+      dest: /etc/nomad.d/server/
+
+  - name: Create Consul Data Directory
+    file:
+      path: /var/consul
+      state: directory 
+
+  - name: Create Nomad Data Directory 
+    file:
+      path: /var/lib/nomad
+      state: directory

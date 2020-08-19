@@ -1,0 +1,6 @@
+build:
+  consul_url: "https://releases.hashicorp.com/consul/1.8.0+ent-beta1/"
+  consul_binary: "consul_1.8.0+ent-beta1_linux_amd64.zip"
+  nomad_url: "https://releases.hashicorp.com/nomad/0.11.2/"
+  nomad_binary: "nomad_0.11.2_linux_amd64.zip"
+  bind_addr: "0.0.0.0"

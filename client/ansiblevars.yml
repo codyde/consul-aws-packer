@@ -1,0 +1,7 @@
+build:
+  consul_url: "https://releases.hashicorp.com/consul/1.7.3/"
+  consul_binary: "consul_1.7.3_linux_amd64.zip"
+  bind_addr: "0.0.0.0"
+app:
+    servicename: "nginx"
+    acl: "6bfd4100-9fde-e390-e997-5a219a60f31f"
